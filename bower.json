@@ -1,0 +1,35 @@
+{
+  "name": "firebase-addons",
+  "version": "0.0.1",
+  "authors": [
+    "WGP <wgp@iimaps.de>"
+  ],
+  "description": "Addon-elements to query files from firebase-catalogs.",
+  "keywords": [
+    "web-component",
+    "polymer",
+    "firebase",
+    "album"
+  ],
+  "main": "firebase-addons.html",
+  "license": "http://polymer.github.io/LICENSE.txt",
+  "homepage": "https://github.com/<USERNAME>/seed-element/",
+  "ignore": [
+    "/.*",
+    "/test/"
+  ],
+  "dependencies": {
+    "polymer": "Polymer/polymer#^1.1.0",
+    "firebase": "~2.3.1",
+    "firebase-element": "GoogleWebComponents/firebase-element#~1.0.7",
+    "iron-pages": "PolymerElements/iron-pages#~1.0.3",
+    "paper-menu-button": "PolymerElements/paper-menu-button#~1.0.3",
+    "paper-menu": "PolymerElements/paper-menu#~1.1.1",
+    "paper-icon-button": "PolymerElements/paper-icon-button#~1.0.5",
+    "paper-item": "PolymerElements/paper-item#~1.0.6"
+  },
+  "devDependencies": {
+    "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
+    "web-component-tester": "*"
+  }
+}
