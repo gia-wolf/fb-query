@@ -1,8 +1,10 @@
 # firebase-query
-An element for multilevel-wrapping the request and response to a FB-dataset into 
+An element wrapping the request and response to a FB-dataset into
+some shells. Element-properties are setup for building flexible requests. 
+Additional properties are used for flexible integration of the response in web-client, enabling    
 - an (invisible) client-collection(array)
 - presentable as a menu(list) and 
-- optionally ctrled by a button.
+- optionally ctrled by a button "hiding" the access to the menu.
  
 ## Presentation of reponses
 Group request/response according to dataset-structure.
