@@ -7,6 +7,13 @@
 		.largeview {
 			height: 200px;
 		}
+		div.1 {
+			background-color: orange;
+		}
+		div.2 {
+			background-color: black;
+			color: white;
+		}
 	</style>
 	
 	<script src="some-tools.js"></script>
@@ -32,25 +39,31 @@ Modules:
 <body unresolved>
 
 	<template is="dom-bind" id="large">
+		
+		<h2>Page: Details of album record</h2>
+		<p>a) transforms record from url-params to attribute of local template-node</p>
+		<p>b) tests flex-layout-placement</p>
+		<p>c) tests flex-layout-placement</p>
 
-		<h3>url-param to attribute of local template-node</h3>
-		<p>also: Test of flex-layout-placement</p>
 		<hr>
 		<div class="layout horizontal"> 
 			
 			<div>
-				Date: {{date}}
-				<br/>Camera: {{camera}}
-			</div>
-
-			<div>
 				<img id="target" class="largeview" src="{{src}}" alt="{{alt}}" />
 			</div>
-			
-			<div>
-				Image {{alt}} created and processed.
-				{{computedSection(owner,camera,date)}}.
-			</div>
+			<div class="layout vertical ">
+				
+				<div class="1"> <!-- single-data binding-->
+					Date: {{date}}
+					<br/>Camera: {{camera}}
+				</div>
+
+				<div class="2">
+					Image {{alt}} created and processed.
+					{{computedSection(owner,camera,date)}}.
+				</div>
+
+			</div>	
 		</div>
 	
 	</template>		
@@ -59,11 +72,21 @@ Modules:
 
 		var d  = document.querySelector('#large');  
 
+		// var computedSection = function(owner, camera, date) {
+		// 	var html = "<hr> Owner="+owner
+		// 			  +"<br> Camera="+camera 	
+		// 			  +"<br> Date="+date
+		// 			  +"<hr>";
+		// 	return html;		   	
+		// };
+
 		d.addEventListener('dom-change', function() {
 
 			// 1. property-placeholders
 			d.owner = "me";
 			d.alt   = "testimage";
+			d.camera = "Exa 1a";
+			d.date = "12.07.1969"; 
 
 			// 2. bind property-values from url-parameters
 			urlparamsbind(window.location, d);
@@ -73,13 +96,12 @@ Modules:
 			d.src = d.url; 
 
 			d.computedSection = function(owner, camera, date) {
-				var html = "<hr> Owner="+owner
-						  +"<br> Camera="+camera 	
-						  +"<br> Date="+date
+				var html = "<hr> Owner is:"+owner
+						  +"<br> Camera used:"+camera 	
+						  +"<br> DateDone ="+date
 						  +"<hr>";
 				return html;		   	
-			}
-
+			};
 		});
 
 	</script>

@@ -74,7 +74,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <div class="layout horizontal">
           <div class="orange">Page actually viewed:</div>
           <div class="flex"><b>{{activatePage(pageindex, pages)}}</b></div>
-          <div><button>Download page</button></div>
         </div>
 
         <!-- <p> from <i>{{location}}</i> by <code>{{pagequery}}</code> as record: [<i>{{pageitems}}</i>]</p> -->
@@ -91,8 +90,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           <template is="dom-repeat" items="[[sections]]" as="section">
             
-            <h4>Section - {{section._ix}}: {{section.title}}</h4>
-            
+            <div class="layout horizontal">
+              <div><button>Download</button></div>
+              <div>Section - {{section._ix}}: <b>{{section.title}}</b></div>
+            </div>
+
             <page-collection> <!-- collection="[[section.imas]]" -->
               
               <template is="dom-repeat" items="[[section.imas]]"> <!-- as="img" -->
