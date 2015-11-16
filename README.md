@@ -1,6 +1,6 @@
-# firebase-select
+# firebase-query
 
-An element providing a starting point for your own reusable Polymer elements.
+An element running a query to element-list at a firebase-location.
 
 
 ## Dependencies

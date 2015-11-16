@@ -15,10 +15,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     
     <title>firebase-addons.Demo</title>
     <script src="../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
-    
-    <link rel="import" href="../firebase-select.html">
-    <link rel="import" href="../firebase-album.html">
-    <!-- <link rel="import" href="../demo-pages.html"> -->
+
+    <link rel="import" href="../firebase-query.html">
+    <link rel="import" href="../page-collection.html">
+    <!-- <link rel="import" href="../page-template-img.html"> -->
+    <link rel="import" href="../page-template-div.html">
 
     <style is="custom-style">
       :root {
@@ -26,41 +27,143 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         --login-button-color: blue;
         --login-button-background-color: orange;*/
       }
+      .orange {
+        padding: 0 5px;
+        background-color: orange;
+      }
+      .form-text {
+        margin-right: 1em;
+        margin-bottom: 0.5em;
+      }
     </style>
 
   </head>
   
   <body unresolved>
 
-    <template id="demo" is="dom-bind">  
+    <template is="dom-bind" id="demo">  
 
-      <p>An example of <code>&lt;firebase-addons&gt;</code>:</p>
+      <h4>An example of <code>&lt;firebase-query(-button)&gt;</code>:</h4>
+      <div class="layout horizontal end">
+        <div class="form-text"> Query album for </div> 
+        <paper-input id="year" label="year"></paper-input>
+      </div>
 
-      <firebase-select-button
-        value="{{value}}"
-      >
-      </firebase-select-button>
+      <template is="dom-if" if="{{year}}">
+        <!-- <firebase-query -->
+        <div class="layout horizontal">
+          <h4>{{pages.length}} pages queried for {{year}}</h4>
+          <firebase-query-button
+            id   ="demobutton" 
+            icon ="[[pageicon]]" 
+            location    ="[[location]]" 
+            query       = "[[pagequery]]" 
+            recorditems = "[[pageitems]]" 
+            recordindex = "{{pageindex}}" 
+            responserecords = "{{pages}}" 
+            auth    = "[[auth]" 
+          >
+          </firebase-query-button>
+          <!-- </firebase-query> -->
+        </div>
+      </template>
 
-      <!-- <album-load 
-      >
-      </album-load> -->
-      <template is="dom-if" if="{{user}}">
-        <h4> Selected item:</h4>
-        <div>{{user}}</div>
+      <template is="dom-if" if="{{pageindex}}">
+
+        <hr>
+        <div class="layout horizontal">
+          <div class="orange">Page actually viewed:</div>
+          <div class="flex"><b>{{activatePage(pageindex, pages)}}</b></div>
+          <div><button>Download page</button></div>
+        </div>
+
+        <!-- <p> from <i>{{location}}</i> by <code>{{pagequery}}</code> as record: [<i>{{pageitems}}</i>]</p> -->
+
+        <template is="dom-if" if="{{sectionquery}}">
+          <!--  -->          
+          <firebase-query 
+            location    = "[[location]]" 
+            query       = "[[sectionquery]]" 
+            recorditems = "record" 
+            responserecords = "{{sections}}"
+            auth        = "[[auth]]">
+          </firebase-query>
+
+          <template is="dom-repeat" items="[[sections]]" as="section">
+            
+            <h4>Section - {{section._ix}}: {{section.title}}</h4>
+            
+            <page-collection> <!-- collection="[[section.imas]]" -->
+              
+              <template is="dom-repeat" items="[[section.imas]]"> <!-- as="img" -->
+
+                <page-template item="{{item}}">
+                </page-template> 
+              
+              </template>
+            
+            </page-collection>
+
+          </template>            
+
+        </template>
+
       </template>
 
     </template>
 
     <script>
     
-      var d = document.querySelector('#demo'); console.log(d);
+      var d = document.querySelector('#demo'); 
+
+      d.addEventListener('dom-change', function() {
+
+        this.$.year.addEventListener('change', function() {
+          d.year = null;
+          d.pageindex = null;
+          if (this.value.length==4) {
+            d.year = this.value;
+            d.pagequery = "/fotoalben/"+d.year+"/pages";  console.log("pagequery: ", d.pagequery)
+          } 
+        });   
+
+        d.location = "https://intense-heat-7852.firebaseio.com";
+        d.auth     = "anonymous";
+
+        d.pages    = [];
+        d.sections = [];
       
-      var selElement = document.querySelector('firebase-select-button'); 
-      console.log("selectButton", selElement);
-      
-      // var albElement = document.querySelector('album-select');  
-      // console.log(selElement, albElement)
-      
+        // Page-abfrage
+        // d.pageicon  = "query-icons:group";
+        // d.pageicon  = "query-icons:photo-album";
+        d.pageicon  = "query-icons:view-list";
+
+        d.year      = "2015"
+        d.pagequery = "/fotoalben/"+d.year+"/pages";
+        d.pageitems = "title";
+
+        d.pageindex = "";
+
+        d.sectionquery = "";
+
+        d.activatePage = function(index, records) {
+          if (!records || !records.length) return ; // console.log("LOG.activatePage. ", index, records); 
+          var rec; 
+          for (var i = 0; i < records.length; i++) {
+              rec = records[i]; 
+              if (rec._ix == index) {
+                this.sectionquery = this.pagequery+"/"+index+"/sections"; 
+                return rec._txt;
+              }   
+          }
+          return;
+        };
+
+      });
+        
+      // var demoButton = document.querySelector('#demobutton'); 
+      // console.log("demoButton:", demoButton);
+
     </script>
 
   </body>
