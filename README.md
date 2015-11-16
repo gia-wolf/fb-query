@@ -1,5 +1,5 @@
 # firebase-select
 
-An element providing a starting point for your own reusable Polymer elements.
+An element wrapping the request and response to a FB-dataset into a menu(list), optionally ctrled by a button     
 
 ## First run around
