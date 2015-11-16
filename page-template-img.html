@@ -1,0 +1,35 @@
+
+
+    <dom-module id='page-template'>
+      <style>
+        .container > ::content * {  
+          max-width: 100%;  
+          max-height: 100%; 
+        }
+      </style>
+      
+      <template>
+        <div class="container">
+          <img src='{{item.url}}' alt='{{item.alt}}'>
+        </div>
+      </template>
+
+      <script>
+      
+        Polymer({
+          is: 'page-template',
+
+          properties:{
+            /**
+            * Page-object "describing" pages(sections, images)  
+            */        
+            item : {
+              type: Object,
+              value : {
+              } 
+            }
+          }
+        })
+      </script>  
+    </dom-module>
+

@@ -1,0 +1,363 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<link rel="import" href = "../polymer/polymer.html">
+
+<!-- elements for query -->
+<link rel="import" href = "../firebase-element/firebase.html">
+<link rel="import" href = "../firebase-element/firebase-auth.html">
+
+<!-- elements for presentation -->
+<link rel="import" href="../paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../paper-menu-button/paper-menu-button.html">
+<link rel="import" href="../iron-icon/iron-icon.html">
+<link rel="import" href="query-icons.html">
+
+<link rel="import" href="../paper-menu/paper-menu.html">
+<link rel="import" href="../paper-item/paper-item.html">
+
+<!-- Alternative icons -->
+<!-- <link rel="import" href="../iron-icons/iron-icons.html"> -->
+<!-- <link rel="import" href="../iron-icons/social-icons.html"> -->
+<!-- <link rel="import" href="../iron-icons/image-icons.html"> -->
+<!-- <link rel="import" href="../iron-iconset-svg/iron-iconset-svg.html"> -->
+
+<!-- elements required in demo.index.html -->
+<link rel="import" href= "../paper-styles/paper-styles.html"><!-- required in demo -->
+<link rel="import" href= "../paper-input/paper-input.html">
+<link rel="import" href= "../paper-input/paper-input-container.html">
+<link rel="import" href= "../iron-input/iron-input.html">
+    
+
+<!--
+Element to query a firebase-collection. 
+
+Default: invisible element returning first item of collection 
+
+Option: DropDownBtn for subselection from non-unique response
+
+Example:
+
+    <firebase-query
+      location   ="basic fb-url" 
+      query      ="url-query"
+      recorditems="items to be returned"
+      recordindex="index of first returned record"
+      responserecords="array of queried records"
+    >
+    </firebase-query>
+
+or a button wrapping the select-query with option of subselection
+
+    <firebase-query-button
+      location= ...
+    >
+    </firebase-query-button>
+
+All records are returned with additional properties _ix, _txt
+
+@group firebase Elements
+@element firebase-query
+@demo demo/index.html
+@hero hero.svg
+-->
+
+<dom-module id='firebase-query'>
+  <!-- f.i. create/show a selectable menu from result of fb-query -->
+  <style>
+    :host { /*display: block;*/
+    }
+  </style>
+
+  <template>
+
+    <firebase-auth
+        auto-login
+        redirect
+        location="[[location]]"
+        on-error="onFirebaseError" 
+    >
+    </firebase-auth>
+    <!-- provider="[[auth]]" -->
+    <!-- on-login="firebaseQuery" -->
+    
+    <!-- Menu shows only if  "menumode=true" and    -->
+    <template is="dom-if" if="{{buildMenuCheck(responserecords, menumode)}}"> 
+
+      <paper-menu class="dropdown-content" on-iron-select="selectPaperItem">
+        <template is="dom-repeat" items="[[responserecords]]" as="record">
+            <paper-item value="{{record._ix}}">[[record._txt]]</paper-item>
+        </template>
+      </paper-menu>
+    
+    </template>
+
+  </template>
+
+  <script>
+
+    Polymer({
+
+      is: 'firebase-query',
+
+      properties:{
+        /**
+        * Query: Root(Url) of firebase-DB (f.i. album-index)
+        */
+        location: {
+          type:  String,
+          value: null
+        },
+
+        /**
+        * Query: URL-extension requesting the raw data from firebase-DB 
+        */
+        query: {  // f.i. query all pages of a year
+          type: String,
+          value: null
+        },  // creates years-menu 
+
+        /**
+        * Query: items of response-records to return
+        */
+        recorditems: {   
+          type: String,
+          value: true
+        },
+
+        /**
+        * Response: Records from raw firebase-query-response
+        */
+        responserecords: {
+          type:   Array,
+          value:  null,
+          notify: true
+        },
+
+        /**
+        * Response: Index of SELECTED response-record 
+        */
+        recordindex: {
+          type: String,
+          value: null,
+          notify: true
+        },
+
+        /**
+        * Authentification mode
+        */
+        auth:{
+          type: String,
+          reflectToAttribute: true,
+          value: "anonymous"
+        },
+
+        /**
+        * User-id of app-user (as returned from authentification) or null
+        */
+        uid : {         
+          type: String,
+          value: ""
+        },
+
+        /**
+        * Flag: if true a gui-menu is created from responserecords  
+        */
+        menumode : {
+          type: String,
+          value: ""
+        }
+
+      },
+
+      observers: [
+        'firebaseQuery(location, query, recorditems)'
+      ],   
+
+      /**
+      * Creates array of queryResponse-Objects. 
+      * Optionally extracting requested items only.    
+      */
+      firebaseQuery: function(location, query, recorditems) { 
+        // console.log("START.firebaseQuery. query= "+ query, "url= " + location, "menuItem= " + items);
+
+        if (!location || !query) return;  
+        
+        var queryUrl = location + query;  // console.log("queryUrl=", queryUrl); 
+
+        var thiss = this, // 
+          ref = new Firebase(queryUrl),
+          records = [], record, key, key0, text;
+        
+        ref.once('value', function(querySnap) {  
+          // console.log("Raw snap of fb queried at:" + queryUrl, querySnap.val());
+
+          querySnap.forEach(function(recordSnap) { 
+
+            text = "";  
+            key  = recordSnap.key();
+            if (key0 == null) key0 = key; 
+
+            record = recordSnap.val(); // DEFAULT : may be any object 
+            
+            if      (recorditems == "key") {
+              record = {ix:key}; 
+              text = key;
+            } else if (recorditems == "record") {
+              record = record;
+              text = key;
+            } else if (typeof recorditems == "string") {
+
+              var items = recorditems.split(","); 
+              var rec = {}, val, text;
+
+              for (i = 0; i < items.length; i++) {
+                val = record[items[i]];
+                if (!val) continue; 
+                rec[items[i]] = val; 
+                if (typeof val == "string") {
+                  if (text) text = text + "/";
+                  text = text + val; 
+                }  
+              }
+              if (!text) text = key;
+              record = rec;
+            }
+
+            record["_ix"]  = key;   
+            record["_txt"] = text;  
+
+            records.push(record);
+            // records.push({index:key, value:record});
+          });
+
+          thiss.recordindex = key0;  
+          thiss.responserecords = records;   // console.log("Queried records:", queryUrl, "key0="+key0 , records);
+        }) ;   
+      },
+
+      selectPaperItem : function (e, selected) { 
+          // paper-items in fb-response-menues 
+          // get its value from the index of represented record !!! 
+          if (selected.item) {                // selected :       <iron-select>
+            var index = selected.item.value;  // selected.item :  <paper-item>
+            //console.log("value of selected paper-item = " + index, selected.item); 
+            this.recordindex = index;  
+          }
+      },
+
+      /**
+      * Check, if options are suited to populate html-select  
+      */
+      buildMenuCheck: function(items, showmenu) { 
+        if (!showmenu || !items || (items.length < 2)) return; 
+        var item = items[0]; // console.log("debug first item", item);
+        if (typeof item._txt != "string") return;
+        return true; 
+      },
+
+      onFirebaseError : function(event) { 
+        var msg = event.detail.message; console.log("FBerror:", msg);
+        this.$.errorToast.text = msg;
+        this.$.errorToast.show();
+      }
+
+    });
+
+  </script>
+</dom-module>
+
+<dom-module id='firebase-query-button'>
+  <!--  -->
+  <style>
+    :host {
+      /*display: block;*/
+    }
+  </style>
+
+  <template>
+
+    <paper-menu-button>
+
+      <paper-icon-button 
+        class="dropdown-trigger"
+        icon ="{{icon}}" 
+      >
+      </paper-icon-button>
+
+      <firebase-query 
+        class    = "dropdown-content" 
+        menumode = "ok" 
+        location = "[[location]]" 
+        query    = "[[query]]"
+        recorditems = "[[recorditems]]" 
+        responserecords = "{{responserecords}}"
+        recordindex = "{{recordindex}}" 
+        auth     = "[[auth]]">
+      </firebase-query>
+
+    </paper-menu-button>
+
+  </template>
+
+  <script>
+
+    Polymer({
+      is: 'firebase-query-button',
+      properties:{
+        /**
+        * Key of icon to be shown on select-button 
+        */        
+        icon: {
+          type:String,
+          value: "social:person"
+        },
+
+        location: {
+          type:  String,
+          value: ""
+        },
+
+        /**
+        * Firebase-query(url) requesting the raw data for menu-options from server 
+        */        
+        query: {
+          type:String,
+          value:""
+        },
+
+        /**
+        * Item of queried objects to display in a generated items-options 
+        */        
+        recorditems: {
+          type: String,
+          value: ""
+        },
+
+        responserecords: {
+          type: Array,
+          value: null,
+          notify: true
+        },
+
+        recordindex: {
+          type: String,
+          value: null,
+          notify: true
+        },
+
+        auth: {
+          type: String,
+          value: "text"
+        }
+
+      },
+    });
+  </script>
+</dom-module>

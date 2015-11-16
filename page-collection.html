@@ -1,0 +1,59 @@
+<link rel="import" href = "../polymer/polymer.html">
+<link rel="import" href = "../paper-styles/paper-styles.html">
+
+<!--
+Element to present a page-collection (img) as horizontal . 
+CTRL mainly (excl.) by CSS
+-->
+
+<dom-module id='page-collection'>
+
+  <style>
+    :host {
+      /*display: block;*/
+      /*height: var(--animation-pages-height, 250px);*/
+    }
+    .collection {  /**/
+      width: 100%; 
+      height: 200px; 
+      overflow-x:scroll; overflow-y:hidden;
+    }
+    .collection > ::content page-template {  
+      /*.collection > ::content + * {  */ /* NOP ??? */
+      max-width: 20%;   /*max 5 elements per page*/
+      max-height: 100%; /*fit height to conte-wrapper*/
+      margin: 5px;      /**/
+    }
+    
+  </style>
+
+  <template>
+    <div class="collection layout horizontal center">
+      <content></content>
+    </div>  
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'page-collection',
+
+      properties:{
+        /**
+        * Collection of elements to view 
+        */
+        collection: {
+          type:  Array,
+          value: []
+        }     
+      }
+
+      // ready: function() {
+      // },
+      // createLink: function(image) { /*create a link-wrap */
+      // }  
+
+    })
+  </script>
+</dom-module>            
+

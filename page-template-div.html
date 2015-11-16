@@ -1,0 +1,107 @@
+<link rel="import" href = "../polymer/polymer.html">
+
+<link rel="import" href = "../paper-styles/paper-styles.html">
+<link rel="import" href = "../paper-material/paper-material.html">
+<link rel="import" href = "../iron-image/iron-image.html">
+
+<dom-module id='page-template'>
+  <template>
+    <!-- Single container updated from [[pages]] -->
+
+    <style>/* is="custom-style">*/
+      :host {
+        --background-title: yellow;
+        --background-img: orange;
+        --background-text: green;
+        width: var(--animation-page-width, 50%);
+      }
+      
+      #content {
+        border-color: var(--animation-page-border, grey);
+        /*background:   var(--animation-page-background, lightgrey);*/
+        /*width:        var(--animation-page-width, 300px);*/
+        border-width: 2px;
+        border-style: solid;
+      }
+
+      .imgview {
+        width:  var(--index-image-size, 100px);
+        height: var(--index-image-size, 100px);
+        background-color: var(--background-img);
+      }      
+      .pagetitle {
+        padding:2px 10px;
+        /*font-variant: small-caps;*/
+        text-transform: capitalize;
+        background: var(--background-title);
+      }  
+      .pagetext {
+        padding:2px 10px;
+        background: var(--background-text);
+      }  
+      .pagecontent {
+        padding:2px 10px;
+        /*padding-top:5px;*/
+      }  
+    </style>
+
+    <div id="content">
+      <div class="pagetitle"> {{item.alt}}, {{item.date}} </div>
+      
+      <div class="pagecontent horizontal layout">
+
+        <a href='{{computehref(target, item)}}' target='_blank'>
+          <iron-image class="imgview" sizing="contain" src='{{item.url}}' alt='{{item.alt}}'>
+          </iron-image>
+        </a>
+      
+        <div class="pagetext vertical layout"> 
+          <div><i>Camera used:</i> {{item.camera}}</div>
+          <div class="pagetitle flex"><i>Done at:</i> {{item.date}}</div>
+        </div>
+
+      </div>
+    </div>
+  </template>
+
+  <script>
+  
+    Polymer({
+      is: 'page-template',
+
+      properties:{
+        /**
+        * Page-object "describing" pages(sections, images)  
+        */        
+        item : {
+          type: Object,
+          value : {
+          } 
+        },
+        target : {
+          type: String,
+          value : "large.html"
+        }
+
+      },
+
+      /**
+      * Compile href from all (suitable) object-properties   
+      * (?place into a behaviour?)
+      */        
+      computehref: function(target, item) {
+        var href = target;
+        var sep = "?";
+        for(var index in item) { 
+          if (typeof item[index] != "object") {
+            href = href+sep+index+"="+item[index];
+            sep="&"
+          }
+        } // console.log("target-href:", href);
+        return href;
+      } 
+
+    })
+  </script>  
+</dom-module>
+

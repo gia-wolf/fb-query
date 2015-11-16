@@ -1,0 +1,86 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+	<style is="custom-style">
+		.largeview {
+			height: 200px;
+		}
+	</style>
+	
+	<script src="some-tools.js"></script>
+    <script src="../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+
+	<link rel="import" href = "../bower_components/polymer/polymer-micro.html">    
+	<link rel="import" href = "../bower_components/paper-styles/paper-styles.html">
+
+<!--
+Sample page with auto-binding 
+of properties activated from url-parameters 
+
+Modules:
+	some-tools.js (url-decompose ...)
+	webcomponents-lite.js
+	polymer-micro.html
+
+@group auto-binding
+-->
+
+</head>
+
+<body unresolved>
+
+	<template is="dom-bind" id="large">
+
+		<h3>url-param to attribute of local template-node</h3>
+		<p>also: Test of flex-layout-placement</p>
+		<hr>
+		<div class="layout horizontal"> 
+			
+			<div>
+				Date: {{date}}
+				<br/>Camera: {{camera}}
+			</div>
+
+			<div>
+				<img id="target" class="largeview" src="{{src}}" alt="{{alt}}" />
+			</div>
+			
+			<div>
+				Image {{alt}} created and processed.
+				{{computedSection(owner,camera,date)}}.
+			</div>
+		</div>
+	
+	</template>		
+
+	<script type="text/javascript">
+
+		var d  = document.querySelector('#large');  
+
+		d.addEventListener('dom-change', function() {
+
+			// 1. property-placeholders
+			d.owner = "me";
+			d.alt   = "testimage";
+
+			// 2. bind property-values from url-parameters
+			urlparamsbind(window.location, d);
+
+			// 3. update data-bindings of prperties 
+			// 	  where prop-names not sync between urlparams and document 
+			d.src = d.url; 
+
+			d.computedSection = function(owner, camera, date) {
+				var html = "<hr> Owner="+owner
+						  +"<br> Camera="+camera 	
+						  +"<br> Date="+date
+						  +"<hr>";
+				return html;		   	
+			}
+
+		});
+
+	</script>
+</body>
